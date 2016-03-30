@@ -3,6 +3,11 @@ package smallworld;
 import edu.princeton.cs.In;
 import edu.princeton.cs.StdIn;
 import edu.princeton.cs.StdOut;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Stack;
 
 /******************************************************************************
@@ -83,21 +88,69 @@ public class PathFinderClient {
         return path;
     }
 
+    public static List read(In in, String delimiter) {
+        Graph G = new Graph();
+        List<String> actors = new ArrayList<>();
+        
+        while (in.hasNextLine()) {
+            String line = in.readLine();
+            String[] names = line.split(delimiter);
+            String movie = names[0];
+            for (int i = 1; i < names.length; i++) {
+                G.addEdge(movie, names[i]);
+                actors.add(names[i]);
+            }
+        }
+        return actors;
+    }
 
     public static void main(String[] args) {
         String filename  = args[0];
         String delimiter = args[1];
         In in = new In(filename); 
         Graph G = GraphGenerator.read(in, delimiter);
-        String s = args[2];
+        Iterable<String> actors = G.vertices();
+        String s = "Bacon, Kevin";
+       
         PathFinder pf = new PathFinder(G, s);
-        while (!StdIn.isEmpty()) {
-            String t = StdIn.readLine();
-            for (String v : pf.pathTo(t)) {
-                StdOut.println("   " + v);
+        int avg = 0;
+        int notConnected = 0;
+        for (String z : actors){
+            int distance = pf.distanceTo(z)/2;
+            if(distance < 10000 ){
+            avg = avg + distance;
             }
-            StdOut.println("distance " + pf.distanceTo(t));
+            else{
+                notConnected++;
+            }
         }
+        
+        
+        avg = avg/G.length();
+        System.out.println("The average distance from " + s + "' is " + avg + "." );
+        System.out.println("The number of people not connected with " + s + " is " + notConnected + ".");
+        System.out.println();
+        System.out.println();
+        
+        
+        for (String z : actors){
+            int distance = pf.distanceTo(z)/2;
+            if (distance > avg  && distance < 1000 &&  !z.contains(".*[0-9].*")){
+            StdOut.println(z + " is "+ distance + " degrees from " + s + ".");
+            }
+//            else{
+//                StdOut.println(z + " is not connected to " + s + ".");
+//            }
+        }
+//        while (!StdIn.isEmpty()) {
+//            String t = StdIn.readLine();
+//            for (String v : pf.pathTo(t)) {
+//                StdOut.println("   " + v);
+//            }
+//            StdOut.println("distance " + pf.distanceTo(t)/2);
+//        }
+
+    
     }
 
 
